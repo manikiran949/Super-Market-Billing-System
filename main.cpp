@@ -166,7 +166,7 @@ void print_date_time(){
     cout << "\t\t\tCashier ID : " << 1000 + rand()%1000 << "\t\t\t Date : " << ltm->tm_mday << "/" << 1 + ltm->tm_mon << "/" << 1900 + ltm->tm_year << endl;
     cout << "\t\t\tBill No    : " << 1 + rand()%10 << "\t\t\t\t Time : " << ltm->tm_hour <<":"<< ltm->tm_min << ":" << ltm->tm_sec << endl;
     cout << endl;
-    cout << "\t\t\t********************";
+    cout << "\t\t\t*********************************************************";
     cout << endl;
     return;
 }
@@ -328,7 +328,7 @@ int printBill(){
     cout << "\t\t\t\t\t\tSMK SHOPPING MALL" << endl;
     cout << "\t\t\t\t\t     GSTIN : 38AANCA1901C1Z6" << endl;
     cout << endl;
-    cout << "\t\t\t********************";
+    cout << "\t\t\t*********************************************************";
     cout << endl;
     print_date_time();
     double x = count * 1.0;
@@ -350,7 +350,7 @@ int printBill(){
        for (int j = 0; j < max_width - all[i].first.size(); j++) {
           cout << " ";
        }
-       cout << "\t     : ";
+       cout << "\t     :  ";
        cout << all[i].second << "/-" << endl;
     }
 
