@@ -14,19 +14,28 @@ class ItemDetails{
     protected: // taken protected, so that we can inherit.
     string Item;
     double Price;
+    friend class BillingSystem;
 };
 
 class Bill : private ItemDetails{
 
 private:
     int Quantity;
-    
+    friend class BillingSystem;
 public:
+
     // constructor
-    Bill(){
-        Item = "";
-        Price = 0.0;
-        Quantity = 0;
+    Bill(string Item,double Price,int Quantity){
+        this -> Item = Item;
+        this -> Price = Price;
+        this -> Quantity = Quantity;
+    }
+
+     // Overloaded constructor without Quantity parameter
+    Bill(string Item, double Price) {
+        this->Item = Item;
+        this->Price = Price;
+        this->Quantity = 1; // Default quantity is 1
     }
 
     // setter functions.
@@ -59,42 +68,102 @@ public:
     ~Bill(){
         // no cleanup required.
     }
-    
-    // friend function.
-    friend void displayItemDetails(const Bill &bill);
 };
 
-void print_receipt(double x,double fd,double gst,bool carrybag){
-    // to print the final receipt.
 
-    cout << "\t\t\t\t\t\t SubTotal    :  " << x << "/-" << endl;
-    cout << "\t\t\t\t\t\t Discounts   : -" << fd << "/-" << endl;
-    cout << "\t\t\t\t\t\t CGST 2.5%   :  " << gst << "/-" << endl;
-    cout << "\t\t\t\t\t\t SGST 2.5%   :  " << gst << "/-" << endl;
+class BillingSystem{
 
-    double mk = 0;
-    if(carrybag) mk = 5.0;
-    cout << "\t\t\t\t\t\t Carry Bag   :  " << mk << "/-" << endl;
-    // cout << endl;
-    cout << "\t\t\t\t\t\t------------------------" << endl;
-    cout << "\t\t\t\t\t\t Grand Total : " << "Rs " << x + 2 * gst + mk - fd << "/-" << endl; 
-    cout << "\t\t\t\t\t\t------------------------" << endl;
-    cout << endl << endl;
-    cout << "\t\t\t   Thank you For Shopping with us ! Please visit us again !" << endl;
+    public:
+    
+    void print_receipt(double x,double fd,double gst,bool carrybag){
+        // to print the final receipt.
 
-    cout << endl << endl;
-}
+        cout << "\t\t\t\t\t\t SubTotal    :  " << x << "/-" << endl;
+        cout << "\t\t\t\t\t\t Discounts   : -" << fd << "/-" << endl;
+        cout << "\t\t\t\t\t\t CGST 2.5%   :  " << gst << "/-" << endl;
+        cout << "\t\t\t\t\t\t SGST 2.5%   :  " << gst << "/-" << endl;
 
-void displayItemDetails(const Bill &bill){
+        double mk = 0;
+        if(carrybag) mk = 5.0;
+        cout << "\t\t\t\t\t\t Carry Bag   :  " << mk << "/-" << endl;
+        // cout << endl;
+        cout << "\t\t\t\t\t\t------------------------" << endl;
+        cout << "\t\t\t\t\t\t Grand Total : " << "Rs " << x + 2 * gst + mk - fd << "/-" << endl; 
+        cout << "\t\t\t\t\t\t------------------------" << endl;
+        cout << endl << endl;
+        cout << "\t\t\t   Thank you For Shopping with us ! Please visit us again !" << endl;
+
+        cout << endl << endl;
+    }
+
+    void show_cart(map<string, int> &cur_cart, map<string,double> &vp){
+        cout << "\t\tCurrent Cart :- " << endl << endl;
+        if((int)cur_cart.size() == 0){
+            // nothing in the cart.
+            cout << "\t\tYour Cart is Empty :(" << endl;
+        }
+        // print the cart.
+        for(auto it : cur_cart){
+            cout << "\t\t" << it.first << " : " << it.second << endl;
+        }
+        double total_price = 0.0;
+        for(auto it : vp){
+            total_price += it.second;
+        }
+        cout << endl;
+        cout << "\t\tCurrent Total : " << total_price << endl;
+    }
+    
+    double calculate_gst(double x,double fd){
+        // calculating gst : 2.5% of the subtotal.
+        double gst = (2.5 * 1.0/100) * (x - fd)*1.0;
+        return gst;
+    }
+
+    void ViewStock(){
+        // view all the available items in the stock through reading the file.
+        ifstream file("C:/Users/MANIKIRAN/Desktop/OOPS Project/shop.txt");
+        if (!file.is_open()) {
+            cerr << "Error ! , Unable to open the file" << endl;
+            return;
+        }
+        string line;
+        while (getline(file, line)) {
+            cout << line << endl;
+        }
+        file.close();
+        return;
+    } 
+
+    void updateItem(ItemDetails &item, const string& newItem, double newPrice){
+        item.Item = newItem;
+        item.Price = newPrice;
+    }
+
+    void updateBill(Bill &bill, const string& newItem, double newPrice, int newQuantity){
+        bill.Item = newItem;
+        bill.Price = newPrice;
+        bill.Quantity = newQuantity;
+    }
+
+};
+
+
+void print_date_time(){
+    // to print the current date and time.
+    time_t now = time(0); 
+    tm* ltm = localtime(&now);
+    // generate random numbers using rand().
+    cout << "\t\t\tCashier ID : " << 1000 + rand()%1000 << "\t\t\t Date : " << ltm->tm_mday << "/" << 1 + ltm->tm_mon << "/" << 1900 + ltm->tm_year << endl;
+    cout << "\t\t\tBill No    : " << 1 + rand()%10 << "\t\t\t\t Time : " << ltm->tm_hour <<":"<< ltm->tm_min << ":" << ltm->tm_sec << endl;
     cout << endl;
-    cout << "\tItem : " << bill.Item << endl;
-    cout << "\tPrice : " << bill.Price << endl;
-    cout << "\tQuantity : " << bill.Quantity << endl;
-    Sleep(2000);
+    cout << "\t\t\t**********************************************************";
+    cout << endl;
+    return;
 }
 
 // to add items into stock.
-int addItem(Bill b){
+int addItem(){
     bool close = false;
     
     while (!close){
@@ -117,23 +186,20 @@ int addItem(Bill b){
             cout << "\tItem Details : " << endl << endl;
             cout << "\tName of the item you wish to add : ";
             cin >> item;
-            b.setItem(item);
             double rate;
             cout << "\tEnter Price Of the Item : "; 
             cin >> rate;
-            b.setPrice(rate);
 
             cout << "\tEnter Quantity Of the Item : ";
             cin >> Quant;
-            b.setQuantity(Quant);
+            Bill b(item,rate,Quant);
 
-            //displayItemDetails(b);
-            
             // append the item details into the file.
             ofstream out("C:/Users/MANIKIRAN/Desktop/OOPS Project/shop.txt", ios::app);
             if (!out){
                 cout << "\tError: File Can't Open !" << endl;
             }
+
             else{
                 out << "\t " << b.getItem() << " :  " << b.getPrice() << " :  " << b.getQuantity() << endl << endl;
             }
@@ -157,41 +223,12 @@ int addItem(Bill b){
         }
     }
 }
+ 
 
-void print_date_time(){
-    // to print the current date and time.
-    time_t now = time(0); 
-    tm* ltm = localtime(&now);
-    // generate random numbers using rand().
-    cout << "\t\t\tCashier ID : " << 1000 + rand()%1000 << "\t\t\t Date : " << ltm->tm_mday << "/" << 1 + ltm->tm_mon << "/" << 1900 + ltm->tm_year << endl;
-    cout << "\t\t\tBill No    : " << 1 + rand()%10 << "\t\t\t\t Time : " << ltm->tm_hour <<":"<< ltm->tm_min << ":" << ltm->tm_sec << endl;
-    cout << endl;
-    cout << "\t\t\t*********************************************************";
-    cout << endl;
-    return;
-}
-
-void show_cart(map<string, int> &cur_cart){
-    cout << "\t\tCurrent Cart :- " << endl << endl;
-    if((int)cur_cart.size() == 0){
-        // nothing in the cart.
-        cout << "\t\tYour Cart is Empty :(" << endl;
-    }
-    // print the cart.
-    for(auto it : cur_cart){
-        cout << "\t\t" << it.first << " : " << it.second << endl;
-    }
-}
-
-double calculate_gst(double x,double fd){
-    // calculating gst : 2.5% of the subtotal.
-    double gst = (2.5 * 1.0/100) * (x - fd)*1.0;
-    return gst;
-}
 
 // to add items into cart and then print the bill.
-int printBill(){
-    //vector<pair<string,double>> vp;
+int Add_to_cart(BillingSystem billingSystem){
+
     map<string,double> vp;
     system("cls");
     double count = 0;
@@ -224,6 +261,7 @@ int printBill(){
             ofstream out("C:/Users/MANIKIRAN/Desktop/OOPS Project/shop tmp.txt");
             string line;
             bool found = false;
+
             while (getline(in, line)){
                 stringstream ss;
                 ss << line;
@@ -270,7 +308,7 @@ int printBill(){
         else if(choice == "2"){
             system("cls");
             // print the cart.
-            show_cart(cur_cart);
+            billingSystem.show_cart(cur_cart,vp);
             Sleep(5000);
         }
 
@@ -328,7 +366,7 @@ int printBill(){
     cout << "\t\t\t\t\t\tSMK SHOPPING MALL" << endl;
     cout << "\t\t\t\t\t     GSTIN : 38AANCA1901C1Z6" << endl;
     cout << endl;
-    cout << "\t\t\t*********************************************************";
+    cout << "\t\t\t**********************************************************";
     cout << endl;
     print_date_time();
     double x = count * 1.0;
@@ -359,31 +397,17 @@ int printBill(){
     if(festive_discount) fd = 0.1 * x; 
     
     // calculate the bill after removing discount.
-    double gst = calculate_gst(x, fd);
-    print_receipt(x,fd,gst,carrybag);
+    double gst = billingSystem.calculate_gst(x, fd);
+    billingSystem.print_receipt(x,fd,gst,carrybag);
     
     Sleep(300000);
 }
 
-void ViewStock(){
-    // view all the available items in the stock through reading the file.
-    ifstream file("C:/Users/MANIKIRAN/Desktop/OOPS Project/shop.txt");
-    if (!file.is_open()) {
-        cerr << "Error ! , Unable to open the file" << endl;
-        return;
-    }
-    string line;
-    while (getline(file, line)) {
-        cout << line << endl;
-    }
-    file.close();
-    return;
-}
 
 int main(){
     srand(time(0));
-    Bill b;
     bool exit = false;
+    BillingSystem billingSystem;
     while (!exit){
         system("cls");
         string val;
@@ -402,13 +426,13 @@ int main(){
         if (val == "1"){
             system("cls");
             // add items into stock.
-            addItem(b);
+            addItem();
             Sleep(3000);
         }
 
         else if (val == "2"){
             // go to cart.
-            printBill();
+            Add_to_cart(billingSystem);
         }
 
         else if(val == "3") {
@@ -417,7 +441,7 @@ int main(){
             // print the items in the stock.
             cout << "\tName  Price  Quantity";
             cout << endl << endl;
-            ViewStock();
+            billingSystem.ViewStock();
             cout << "\tEnter 1 to leave stock : ";
             string str; 
             cin >> str;
