@@ -1,7 +1,5 @@
 # 🛒 Supermarket Billing System
 
-![Supermarket Billing System](https://via.placeholder.com/800x200.png?text=Supermarket+Billing+System)
-
 A console-based application written in C++ for managing a supermarket's inventory and billing process. This project provides features such as inventory management, cart management, GST calculations, and more.
 
 ## 🚀 Features
@@ -121,5 +119,5 @@ int main() {
 ## 👨‍💻 Authors
 
 - **Mani Kiran** - [GitHub](https://github.com/manikiran949)
-- **Sathish** - [GitHub](https://github.com/)
+- **Sathish** - [GitHub](https://github.com/Satjaxxs)
 
